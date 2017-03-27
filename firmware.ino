@@ -16,7 +16,7 @@
 #define GAME_UNLOCK_DURATION_SECS         10
 #define STEP_ONE_DISTANCE                 ENCODER_HALF_REV
 #define STEP_ONE_DIRECTION                GAME_CLOCKWISE
-#define STEP_TWO_DISTANCE                 ENCODER_HALF_REV + ENCODER_HALF_REV // example of how you can add the distances
+#define STEP_TWO_DISTANCE                 ENCODER_HALF_REV  // example of how you can add the distances
 #define STEP_TWO_DIRECTION                GAME_COUNTER_CLOCKWISE
 #define STEP_THREE_DISTANCE               ENCODER_HALF_REV
 #define STEP_THREE_DIRECTION              GAME_CLOCKWISE
