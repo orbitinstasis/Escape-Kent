@@ -12,7 +12,9 @@
 #define GAME_COUNTER_CLOCKWISE            false
 
 // CHANGE BELOW ONLY ///////////////////////////////////////////////////////////////////////////////
-
+/*
+ *  please note that the directions for each step need to alternate, i.e. don't set two steps in the same direction
+ */
 #define GAME_UNLOCK_DURATION_SECS         10
 #define STEP_ONE_DISTANCE                 ENCODER_HALF_REV
 #define STEP_ONE_DIRECTION                GAME_CLOCKWISE
