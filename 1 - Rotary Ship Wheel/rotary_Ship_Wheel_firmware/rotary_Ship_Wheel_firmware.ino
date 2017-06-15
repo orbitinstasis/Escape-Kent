@@ -29,7 +29,7 @@
 #define BOARD_LED                         13
 #define ENCODER_RESET                     0
 #define POSITION_CHECK_ERR_TOLERANCE      10
-#define FIRST_MOVE_ERR_TOLERANCE          6
+#define FIRST_MOVE_ERR_TOLERANCE          10
 #define GAME_LEVELS                       3
 #define GAME_WAIT_TIME_SUCCESS            700
 #define GAME_LEVEL_COUNT_DISTANCE         0
@@ -57,18 +57,15 @@ boolean moving = false;                             //probably don't need
 long oldPosition  = -999;
 long newPosition = 0;
 int gameLevel [GAME_LEVELS] [2] = { // [countDistance][goingClockwise?]
-  {STEP_ONE_DISTANCE, STEP_ONE_DIRECTION},                     // full clockwise
-  {STEP_TWO_DISTANCE, STEP_TWO_DIRECTION}, // 1.5 counter clockwise
-  {STEP_THREE_DISTANCE, STEP_THREE_DIRECTION}                      // half clockwise
+  {STEP_ONE_DISTANCE, STEP_ONE_DIRECTION},                      // full clockwise
+  {STEP_TWO_DISTANCE, STEP_TWO_DIRECTION},                      // 1.5 counter clockwise
+  {STEP_THREE_DISTANCE, STEP_THREE_DIRECTION}                   // half clockwise
 };
 int hints [GAME_LEVELS] = {21, 16, 17};
 elapsedMillis sinceRead;
 
 void resetGame(boolean isFullReset) {   // if param true, reset all, assert locked,
   noInterrupts();
-  //  if (isFullReset) {                  // trigger this when the door locks DECIDE IF NECESSARY
-  //    isDoorLocked = true;
-  //  }
   Serial.println("    resetGame CALLED");
   delayMicroseconds(100000);
   isFirstLoop = true;
@@ -86,23 +83,11 @@ void lockDoor (void) {
   isGameFinished = false;
   isDoorLocked = true;
   resetGameState = true;
-
 }
 
 void forceUnlock() {
-
     isDoorLocked = false;
     Serial.println("    YOU PUSHED THE BUTTON ");
-
-
-
-  //  if (digitalRead(FORCE_UNLOCK_BUTTON) == true) {
-  //    digitalWrite(DOOR_GATE, true);
-  //    Serial.println("      FORCE LOCKED");
-  //  } else {
-  //    digitalWrite(DOOR_GATE, false);
-  //    Serial.println("      FORCE UNLOCKED");
-  //  }
 }
 
 void setup() {
@@ -118,20 +103,17 @@ void setup() {
   pinMode(FORCE_UNLOCK_BUTTON, INPUT);
   pinMode(DOOR_GATE, OUTPUT);
   digitalWrite(DOOR_GATE, HIGH);
-  //attachInterrupt(FORCE_UNLOCK_BUTTON, forceUnlock, RISING);
   delayMicroseconds(500000);
 }
 
 
 void loop() {
-
   if ( bouncer.update() && !isFromBoot) {
     if ( bouncer.read() == HIGH) {
       forceUnlock();
     }
   } else 
     isFromBoot = false;
-
   if (!isDoorLocked) {
     Serial.println("!isDoorLocked");
     digitalWrite(DOOR_GATE, GAME_DOOR_UNLOCKED);   // unlock
@@ -139,9 +121,7 @@ void loop() {
     while (holdPeriod < GAME_UNLOCK_DURATION) {  }
     lockDoor();
   }
-
   newPosition = myEnc.read();
-
   if (resetGameState) {
     resetGame(false);
     resetGameState = false;
@@ -155,17 +135,15 @@ void loop() {
       Serial.print(currentgameLevel + 1);
       Serial.println(" PASSED");
       setHints(currentgameLevel, true);
-      //      Serial.println(gameLevel[currentgameLevel][GAME_LEVEL_COUNT_DISTANCE]);
-      //      Serial.println(newPosition);
-      //      Serial.println(abs(gameLevel[currentgameLevel][GAME_LEVEL_COUNT_DISTANCE] - abs(newPosition)));
       currentgameLevel++;
       if (currentgameLevel >= GAME_LEVELS) {
         isDoorLocked = false;
-        //          haveLockedAlready = false;
         Serial.println("      CONGRATS, GAME COMPLETE");
-        isGameFinished = true;          // move this out to the point where you register a correct move
-        // OPEN DOOR  AND WAIT UNTIL THE DOOR IS CLOSED TO RESET AND LOCK THE DOOR TO START OVER (reset hints)
+        isGameFinished = true;         // OPEN DOOR  AND WAIT UNTIL THE DOOR IS CLOSED TO RESET AND LOCK THE DOOR TO START OVER (reset hints)
       }
+      noInterrupts();
+      delay(1000);
+      interrupts();
     } else {
       resetGameState = true;
       currentgameLevel = 0;
@@ -173,11 +151,7 @@ void loop() {
         setHints(i, false);
       }
     }
-    //    Serial.println(gameLevel[currentgameLevel][GAME_LEVEL_COUNT_DISTANCE]);
-    //    Serial.println(newPosition);
-    //    Serial.println(gameLevel[currentgameLevel][GAME_LEVEL_COUNT_DISTANCE] - abs(newPosition));
   }
-
 
   if (newPosition != oldPosition) {         //only process when we're moving
     sinceRead = 0;
@@ -192,7 +166,7 @@ void loop() {
         isClockwise = true;
       oldPosition = newPosition;
     }
-
+    
     if (newPosition != 0) {
       if (newPosition < oldPosition) {        // counter clockwise
         if (isClockwise) {                    // check if we were already going counter clockwise
@@ -201,7 +175,7 @@ void loop() {
           oldPosition  = 0;
         }
       }
-
+      
       if (newPosition > oldPosition) {        // clockwise
         if (!isClockwise) {                    // check if we were already going counter clockwise
           isClockwise = true;                // if already counter clockwise then don't reset
@@ -209,16 +183,14 @@ void loop() {
           oldPosition  = 0;
         }
       }
+      
     }
-
     Serial.print(isClockwise);
     Serial.print("    ");
     Serial.print(newPosition);
     Serial.print("    ");
     Serial.println(oldPosition);
     oldPosition = newPosition;
-
   } // end turning processing
-
 } // end loop
 

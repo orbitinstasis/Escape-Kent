@@ -37,7 +37,7 @@ void setup() {
   Serial.begin(BAUD_RATE);
   Serial.println("Ball Weight Sensing Game by Ben Kazemi for Escape Kent Copyright 2017\n");
   pinMode(DOOR_GATE, OUTPUT);
-  digitalWrite(DOOR_GATE, false);
+  digitalWrite(DOOR_GATE, true);
   pinMode(ON_BOARD_LED, OUTPUT);
   pinMode(SETUP_POWER, OUTPUT);
   digitalWrite(SETUP_POWER, LOW);
@@ -263,7 +263,7 @@ void loop() {
         if (i >= TEST_LOOPS - 1) 
         {
           is_game_finished = true;
-          digitalWrite(DOOR_GATE, is_game_finished);
+          digitalWrite(DOOR_GATE, !is_game_finished);
         }
       }
     }
@@ -280,7 +280,7 @@ void loop() {
       }
       Serial.println("Game has reset, door is now locked!");
       is_game_finished = false;
-      digitalWrite(DOOR_GATE, is_game_finished);
+      digitalWrite(DOOR_GATE, !is_game_finished);
     }
   }
 }
